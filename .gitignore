@@ -1,3 +1,4 @@
 .idea/
 generator/python/tables/__pycache__/
-generator/sql/*
+generator/sql/*.data.sql
+generator/sql/*.schema.sql
