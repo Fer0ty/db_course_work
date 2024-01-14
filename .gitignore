@@ -1,0 +1,3 @@
+.idea/
+generator/python/tables/__pycache__/
+generator/sql/*

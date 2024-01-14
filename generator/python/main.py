@@ -1,3 +1,5 @@
+import os.path
+
 from tables.tables import *
 from tables.base import Table
 
@@ -59,7 +61,14 @@ def initialize_uniques(table: Table) -> None:
             unique_dict[field] = set()
 
 
+def create_sql_dir_if_not_exists() -> None:
+    path = "generator/sql"
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+
 if __name__ == "__main__":
+    create_sql_dir_if_not_exists()
     write_all_create_sql()
 
     initialize_sequences()
