@@ -3,7 +3,7 @@ import os.path
 from tables.tables import *
 from tables.base import Table
 
-tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE]
+tables: List[Table] = [ROLE_TABLE, ACCOUNT_TABLE, USER_TABLE, PROBLEM_TABLE]
 
 
 def write_create_sql(table: Table) -> None:

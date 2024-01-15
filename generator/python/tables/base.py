@@ -10,6 +10,8 @@ TEXT = "TEXT"
 SERIAL = "SERIAL"
 INT = "INT"
 DATE = "DATE"
+BOOLEAN = "BOOLEAN"
+TIMESTAMP = "TIMESTAMP"
 T = TypeVar("T")
 E = TypeVar("E", bound=Enum)
 ROLE_TABLE_NAME_CNT = 0
