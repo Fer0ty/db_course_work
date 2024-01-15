@@ -7,7 +7,7 @@ tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE, CON
 
 
 def write_create_sql(table: Table) -> None:
-    with open(f"/Users/artemiy/Desktop/db_course_work/generator/sql/{table.name}.schema.sql", "w") as f:
+    with open(f"generator/sql/{table.name}.schema.sql", "w") as f:
         f.write(table.generate_create_sql())
 
 
@@ -20,7 +20,7 @@ def generate_data_sql(table: Table, cnt: int) -> None:
     if len(cur_list) == 0:
         data[table] = cur_list
 
-    with open(f"/Users/artemiy/Desktop/db_course_work/generator/sql/{table.name}.data.sql", "w") as f:
+    with open(f"generator/sql/{table.name}.data.sql", "w") as f:
         records_cnt = 0
         for i in range(cnt):
             record = table.generate_record()
@@ -62,7 +62,7 @@ def initialize_uniques(table: Table) -> None:
 
 
 def create_sql_dir_if_not_exists() -> None:
-    path = "/Users/artemiy/Desktop/db_course_work/generator/sql"
+    path = "generator/sql"
     if not os.path.exists(path):
         os.mkdir(path)
 
