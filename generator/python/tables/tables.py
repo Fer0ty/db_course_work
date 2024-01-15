@@ -256,8 +256,7 @@ PROBLEM_FEEDBACK = ProblemFeedback()
 
 
 def gensalary():
-    a = random.randint(85, 450) * 1000
-    return a
+    return random.randint(85, 450) * 1000
 
 
 class Offer(Table):
