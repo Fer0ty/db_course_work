@@ -1,9 +1,11 @@
-import random
-import re
 from generator.python.tables.base import *
 from faker import Faker
 
 fake = Faker()
+
+
+def generate_bool():
+    return random.randint(0, 1)
 
 
 class AccountTable(Table):
@@ -28,9 +30,9 @@ ACCOUNT_TABLE = AccountTable()
 
 
 class ProblemTable(Table):
-    PROBLEM_ID = Field("problem_id", SERIAL, [PK], generate_callback=None)
-    PROBLEM_TEXT = Field("problem_text", TEXT, [NOT_NULL], generate_callback=None)
-    ANSWER = Field("answer", TEXT, [NOT_NULL], generate_callback=None)
+    PROBLEM_ID = Field("problem_id", SERIAL, [PK])
+    PROBLEM_TEXT = Field("problem_text", TEXT, [NOT_NULL], generate_callback=fake.text)
+    ANSWER = Field("answer", TEXT, [NOT_NULL], generate_callback=fake.text)
 
     def __init__(self):
         super().__init__("problems",
@@ -137,7 +139,7 @@ class ProblemSolution(Table):
     PROBLEM_ID = Field("problem_id", INT, [NOT_NULL],
                        reference=Reference(PROBLEM_TABLE, PROBLEM_TABLE.PROBLEM_ID, ReferenceType.MANY_TO_ONE))
     USER_ANSWER = Field("user_answer", TEXT, generate_callback=fake.text)
-    STATUS = Field('status', BOOLEAN, generate_callback=lambda: random.randint(0,1))
+    STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
 
     # todo Добавить составной PK
 
@@ -161,7 +163,7 @@ def generate_devname():
 
 class DevTeam(Table):
     DEVTEAM_ID = Field("devteam_id", SERIAL, [PK])
-    NAME = Field("name", TEXT, [NOT_NULL], generate_callback=generate_devname())
+    NAME = Field("name", TEXT, [NOT_NULL], generate_callback=generate_devname)
 
     def __init__(self):
         super().__init__("devteam",
@@ -192,9 +194,8 @@ class TechInterview(Table):
     TECHINTERVIW_ID = Field('techinterview_id', SERIAL, [PK])
     LOGIN = Field('login', TEXT, [NOT_NULL],
                   reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
-    # todo check timestamp, status
     DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=fake.date_time)
-    STATUS = Field('status', BOOLEAN, generate_callback=lambda: random.randint(0,1))
+    STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
     INTERVIEWER_LOGIN = Field('interviwer_id', INT, [NOT_NULL],
                               reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
 
@@ -218,7 +219,7 @@ class TeamInterview(Table):
                              reference=Reference(TECHINTERVIEW, TechInterview.TECHINTERVIW_ID,
                                                  ReferenceType.MANY_TO_ONE))
     DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=fake.date_time)
-    STATUS = Field('status', BOOLEAN)
+    STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
     DEVTEAM_ID = Field('devteam_id', INT, [NOT_NULL],
                        reference=Reference(DEVTEAM, DevTeam.DEVTEAM_ID, ReferenceType.MANY_TO_ONE))
     COMMENT = Field('comment', TEXT, generate_callback=fake.text)
@@ -264,7 +265,7 @@ class Offer(Table):
     SALARY = Field('salary', INT, [NOT_NULL], generate_callback=lambda: random.randint(85, 450) * 1000)
     START_DATE = Field('start_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[0])
     END_DATE = Field('end_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[1])
-    STATUS = Field('status', BOOLEAN)
+    STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
 
     # todo unique
 

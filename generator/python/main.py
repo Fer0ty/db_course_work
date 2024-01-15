@@ -3,7 +3,7 @@ import os.path
 from tables.tables import *
 from tables.base import Table
 
-tables: List[Table] = [ROLE_TABLE, ACCOUNT_TABLE, USER_TABLE, PROBLEM_TABLE]
+tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE, CONTEST_TABLE, PROBLEM_SOLUTION_TABLE,DEVTEAM,DEVELOPER,OFFER,TECHINTERVIEW,PROBLEM_FEEDBACK,TEAMINTERVIEW]
 
 
 def write_create_sql(table: Table) -> None:
@@ -72,4 +72,4 @@ if __name__ == "__main__":
     write_all_create_sql()
 
     initialize_sequences()
-    generate_all_data_sql(10000, exclude_table=[PROBLEM_TABLE])
+    generate_all_data_sql(10000, exclude_table=[])
