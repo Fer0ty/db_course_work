@@ -107,13 +107,13 @@ def generate_date():
 
 class ContestTable(Table):
     start, end = generate_date()
-    CONTEST_ID = Field("contest_id", SERIAL, [PK], generate_callback=None)
+    CONTEST_ID = Field("contest_id", SERIAL, [PK])
     NAME = Field('name', TEXT, [NOT_NULL],
                  generate_callback=lambda: random.choice(company) + '_' + random.choice(season) + '_' + random.choice(
                      year))
 
-    START_DATE = Field("start_date", DATE, [NOT_NULL], generate_callback=generate_date()[0])
-    END_DATE = Field("end_date", DATE, [NOT_NULL], generate_callback=generate_date()[1])
+    START_DATE = Field("start_date", DATE, [NOT_NULL], generate_callback=lambda: generate_date()[0])
+    END_DATE = Field("end_date", DATE, [NOT_NULL], generate_callback=lambda: generate_date()[1])
     CREATOR = Field("creator", INT, [NOT_NULL], reference=Reference(USER_TABLE, UserTable.ACCOUNT_ID,
                                                                     ReferenceType.MANY_TO_ONE))
 
@@ -137,8 +137,7 @@ class ProblemSolution(Table):
     PROBLEM_ID = Field("problem_id", INT, [NOT_NULL],
                        reference=Reference(PROBLEM_TABLE, PROBLEM_TABLE.PROBLEM_ID, ReferenceType.MANY_TO_ONE))
     USER_ANSWER = Field("user_answer", TEXT, generate_callback=fake.text)
-    # todo Разобраться с буллером)
-    STATUS = Field('status', BOOLEAN)
+    STATUS = Field('status', BOOLEAN, generate_callback=random.randint(0,1))
 
     # todo Добавить составной PK
 
@@ -190,12 +189,12 @@ DEVELOPER = Developer()
 
 
 class TechInterview(Table):
-    TECHINTERVIW_ID = Field('techinterview_id', SERIAL, [NOT_NULL])
+    TECHINTERVIW_ID = Field('techinterview_id', SERIAL, [PK])
     LOGIN = Field('login', TEXT, [NOT_NULL],
                   reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
     # todo check timestamp, status
-    DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=lambda: fake.date + " " + fake.time)
-    STATUS = Field('status', BOOLEAN)
+    DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback = fake.date_time())
+    STATUS = Field('status', BOOLEAN, lambda: random.randint(0,1))
     INTERVIEWER_LOGIN = Field('interviwer_id', INT, [NOT_NULL],
                               reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
 
@@ -212,13 +211,13 @@ TECHINTERVIEW = TechInterview()
 
 
 class TeamInterview(Table):
-    TEAMINTERVIEW_ID = Field('teaminterview_id', SERIAL, [NOT_NULL])
+    TEAMINTERVIEW_ID = Field('teaminterview_id', SERIAL, [PK])
     LOGIN = Field('login', TEXT, [NOT_NULL],
                   reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
     TECHINTERVIEW_ID = Field('techinterview_id', INT, [NOT_NULL],
                              reference=Reference(TECHINTERVIEW, TechInterview.TECHINTERVIW_ID,
                                                  ReferenceType.MANY_TO_ONE))
-    DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=lambda: fake.date + " " + fake.time)
+    DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=fake.date_time())
     STATUS = Field('status', BOOLEAN)
     DEVTEAM_ID = Field('devteam_id', INT, [NOT_NULL],
                        reference=Reference(DEVTEAM, DevTeam.DEVTEAM_ID, ReferenceType.MANY_TO_ONE))
@@ -257,7 +256,7 @@ PROBLEM_FEEDBACK = ProblemFeedback()
 
 
 def gensalary():
-    a = int(random.randint(85000, 450000) / 1000) * 1000
+    a = random.randint(85, 450) * 1000
     return a
 
 
@@ -268,8 +267,8 @@ class Offer(Table):
     DEVTEAM_ID = Field('devteam_id', INT, [NOT_NULL],
                        reference=Reference(DEVTEAM, DevTeam.DEVTEAM_ID, ReferenceType.MANY_TO_ONE))
     SALARY = Field('salary', INT, [NOT_NULL], generate_callback=gensalary()[0])
-    START_DATE = Field('start_date', DATE, [NOT_NULL], generate_callback=generate_date()[0])
-    END_DATE = Field('end_date', DATE, [NOT_NULL], generate_callback=generate_date()[1])
+    START_DATE = Field('start_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[0])
+    END_DATE = Field('end_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[1])
     STATUS = Field('status', BOOLEAN)
 
     # todo unique
