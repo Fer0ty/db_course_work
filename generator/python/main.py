@@ -3,11 +3,11 @@ import os.path
 from tables.tables import *
 from tables.base import Table
 
-tables: List[Table] = [ROLE_TABLE, ACCOUNT_TABLE, USER_TABLE, PROBLEM_TABLE]
+tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE, CONTEST_TABLE, PROBLEM_SOLUTION_TABLE,DEVTEAM,DEVELOPER,OFFER,TECHINTERVIEW,PROBLEM_FEEDBACK,TEAMINTERVIEW]
 
 
 def write_create_sql(table: Table) -> None:
-    with open(f"generator/sql/{table.name}.schema.sql", "w") as f:
+    with open(f"/Users/artemiy/Desktop/db_course_work/generator/sql/{table.name}.schema.sql", "w") as f:
         f.write(table.generate_create_sql())
 
 
@@ -20,7 +20,7 @@ def generate_data_sql(table: Table, cnt: int) -> None:
     if len(cur_list) == 0:
         data[table] = cur_list
 
-    with open(f"generator/sql/{table.name}.data.sql", "w") as f:
+    with open(f"/Users/artemiy/Desktop/db_course_work/generator/sql/{table.name}.data.sql", "w") as f:
         records_cnt = 0
         for i in range(cnt):
             record = table.generate_record()
@@ -62,7 +62,7 @@ def initialize_uniques(table: Table) -> None:
 
 
 def create_sql_dir_if_not_exists() -> None:
-    path = "generator/sql"
+    path = "/Users/artemiy/Desktop/db_course_work/generator/sql"
     if not os.path.exists(path):
         os.mkdir(path)
 
@@ -72,4 +72,4 @@ if __name__ == "__main__":
     write_all_create_sql()
 
     initialize_sequences()
-    generate_all_data_sql(10000, exclude_table=[PROBLEM_TABLE])
+    generate_all_data_sql(10000, exclude_table=[])
