@@ -143,6 +143,19 @@ def get_field_value_by_name(name: str, fields: List[RecordValue]):
     return None
 
 
+def ensure_dates_constraint(fields: List[RecordValue]) -> None:
+    start_date = get_field_value_by_name("start_date", fields)
+    end_date = get_field_value_by_name("end_date", fields)
+    if not start_date or not end_date:
+        return
+    if start_date > end_date:
+        for idx in range(len(fields)):
+            if fields[idx].name == "start_date":
+                fields[idx] = RecordValue("end_date", start_date)
+            elif fields[idx].name == "end_date":
+                fields[idx] = RecordValue("start_date", end_date)
+
+
 class Table:
 
     def __init__(self, name: str, fields: List[Field], constraints: List[Tuple[str, List[Field]]] = None):
@@ -150,8 +163,13 @@ class Table:
         self.fields = fields
         self.constraints = constraints
 
-    def generate_record(self) -> Record:
+    def generate_fields(self) -> List[RecordValue]:
         fields = [RecordValue(i.name, i.generate_value(self)) for i in self.fields]
+        ensure_dates_constraint(fields)
+        return fields
+
+    def generate_record_with_constraints(self) -> Record:
+        fields = self.generate_fields()
 
         # Now it means that unique constraint was broken and we can't generate new value
         if any(i.value == "" for i in fields):

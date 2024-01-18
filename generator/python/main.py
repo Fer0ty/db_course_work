@@ -23,7 +23,7 @@ def generate_data_sql(table: Table, cnt: int) -> None:
     with open(f"generator/sql/{table.name}.data.sql", "w") as f:
         records_cnt = 0
         for i in range(cnt):
-            record = table.generate_record()
+            record = table.generate_record_with_constraints()
             if record is None:
                 continue
             cur_list.append(record)
@@ -75,4 +75,4 @@ if __name__ == "__main__":
     write_all_create_sql()
 
     initialize_sequences()
-    generate_all_data_sql(100000)
+    generate_all_data_sql(10000)
