@@ -16,6 +16,7 @@ T = TypeVar("T")
 E = TypeVar("E", bound=Enum)
 ROLE_TABLE_NAME_CNT = 0
 
+
 class ReferenceType(Enum):
     ONE_TO_ONE = 1,
     MANY_TO_ONE = 2
@@ -32,8 +33,9 @@ class RoleEnum(Enum):
 
 class Field:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, value_type: str):
         self.name = name
+        self.value_type = value_type
 
 
 class Table:
@@ -94,11 +96,15 @@ class Field:
 
         if self.reference is None:
             value = str(self.generate_callback())
-
+            if self.value_type in [TEXT, DATE, BOOLEAN, TIMESTAMP]:
+                value = f"'{value}'"
         else:
             values = data.get(self.reference.table, None)
             if not values:
                 raise Exception(f"no data for table {self.reference.table.name}")
+            # Serial are compatible with int and long, so its hard to just compare them
+            if self.value_type != self.reference.field.value_type and self.reference.field.value_type != SERIAL:
+                raise Exception(f"Type mismatch in fk for table {table.name}, field {self.name}")
 
             if self.reference.reference_type == ReferenceType.MANY_TO_ONE:
                 value = get_random_list_element(values).get_field_value_by_name(self.reference.field.name)
@@ -111,10 +117,7 @@ class Field:
             else:
                 raise Exception(f"reference type {self.reference.reference_type} not implemented")
 
-        if self.value_type == TEXT:
-            value = f"'{value}'"
-
-        if self.constraints and UNIQUE in self.constraints:
+        if self.constraints and (UNIQUE in self.constraints or PK in self.constraints):
             if value in unique_dict[self]:
                 return ""
             unique_dict[self].add(value)
@@ -128,7 +131,16 @@ class Field:
         sql = f"\t{self.name} {self.value_type}"
         if self.constraints:
             sql += " " + " ".join(self.constraints)
+            if self.reference:
+                sql += f" REFERENCES {self.reference.table.name}({self.reference.field.name})"
         return sql
+
+
+def get_field_value_by_name(name: str, fields: List[RecordValue]):
+    for i in fields:
+        if i.name == name:
+            return i.value
+    return None
 
 
 class Table:
@@ -144,14 +156,22 @@ class Table:
         # Now it means that unique constraint was broken and we can't generate new value
         if any(i.value == "" for i in fields):
             return None
-        return Record(self.name,
-                      fields)
+        if self.constraints:
+            for const in self.constraints:
+                cur_hash = list_hash(const[1])
+                if const[0] not in [PK, UNIQUE]:
+                    continue
+                cur_values = "$#".join([get_field_value_by_name(i.name, fields) for i in const[1]])
+                if cur_values in unique_table_dict[cur_hash]:
+                    return None
+                unique_table_dict[cur_hash].add(cur_values)
+        return Record(self.name, fields)
 
     def generate_create_sql(self):
         fields_sql = ",\n".join(i.generate_sql() for i in self.fields)
         sql = f"CREATE TABLE IF NOT EXISTS {self.name} (\n{fields_sql}"
         if self.constraints:
-            constraints_sql = ",\n".join("""{}({})""".format(i[0], ", ".join(f.name for f in i[1]))
+            constraints_sql = ",\n".join("""\t{}({})""".format(i[0], ", ".join(f.name for f in i[1]))
                                      for i in self.constraints) if self.constraints else ""
             sql += ",\n" + constraints_sql
         sql += "\n);"
@@ -193,7 +213,16 @@ def role_table_name_callback() -> str:
     return get_all_enum_values(RoleEnum)[ROLE_TABLE_NAME_CNT - 1].name
 
 
+def list_hash(l: List[T]) -> int:
+    base = 37
+    cur_hash = 0
+    for i in l:
+        cur_hash = cur_hash * base + hash(i)
+    return cur_hash
+
+
 data: Dict[Table, List[Record]] = {}
 sequences: Dict[Field, int] = {}
 one_to_one_counter: Dict[Tuple[Field, Field], int] = {}
 unique_dict: Dict[Field, Set[str]] = {}
+unique_table_dict: Dict[int, Set[str]] = {}

@@ -5,7 +5,7 @@ fake = Faker()
 
 
 def generate_bool():
-    return random.randint(0, 1)
+    return str(random.randint(0, 1))
 
 
 class AccountTable(Table):
@@ -97,25 +97,14 @@ year = ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', 
         '2023']
 
 
-def generate_date():
-    start = fake.date()
-    y, m, d = start.split('-')
-    m = int(m) + 1
-    if m < 10:
-        m = '0' + str(m)
-    end = y + '-' + str(m) + '-' + d
-    return start, end
-
-
 class ContestTable(Table):
-    start, end = generate_date()
     CONTEST_ID = Field("contest_id", SERIAL, [PK])
     NAME = Field('name', TEXT, [NOT_NULL],
                  generate_callback=lambda: random.choice(company) + '_' + random.choice(season) + '_' + random.choice(
                      year))
 
-    START_DATE = Field("start_date", DATE, [NOT_NULL], generate_callback=lambda: generate_date()[0])
-    END_DATE = Field("end_date", DATE, [NOT_NULL], generate_callback=lambda: generate_date()[1])
+    START_DATE = Field("start_date", DATE, [NOT_NULL], generate_callback=fake.date)
+    END_DATE = Field("end_date", DATE, [NOT_NULL], generate_callback=fake.date)
     CREATOR = Field("creator", INT, [NOT_NULL], reference=Reference(USER_TABLE, UserTable.ACCOUNT_ID,
                                                                     ReferenceType.MANY_TO_ONE))
 
@@ -149,7 +138,8 @@ class ProblemSolution(Table):
                           self.CONTEST_ID,
                           self.PROBLEM_ID,
                           self.USER_ANSWER,
-                          self.STATUS])
+                          self.STATUS],
+                         constraints=[(PK, [self.LOGIN, self.CONTEST_ID, self.PROBLEM_ID])])
 
 
 PROBLEM_SOLUTION_TABLE = ProblemSolution()
@@ -184,7 +174,8 @@ class Developer(Table):
     def __init__(self):
         super().__init__("developer",
                          [self.LOGIN,
-                          self.DEVTEAM_ID])
+                          self.DEVTEAM_ID],
+                         constraints=[(PK, [self.LOGIN, self.DEVTEAM_ID])])
 
 
 DEVELOPER = Developer()
@@ -196,7 +187,7 @@ class TechInterview(Table):
                   reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
     DATE = Field('date', TIMESTAMP, [NOT_NULL], generate_callback=fake.date_time)
     STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
-    INTERVIEWER_LOGIN = Field('interviwer_id', INT, [NOT_NULL],
+    INTERVIEWER_LOGIN = Field('interviwer_id', TEXT, [NOT_NULL],
                               reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
 
     def __init__(self):
@@ -250,7 +241,8 @@ class ProblemFeedback(Table):
         super().__init__('problem_feedback',
                          [self.TECHINTERVIEW_ID,
                           self.COMMENT,
-                          self.PROBLEM_ID])
+                          self.PROBLEM_ID],
+                         constraints=[(PK, [self.TECHINTERVIEW_ID, self.PROBLEM_ID])])
 
 
 PROBLEM_FEEDBACK = ProblemFeedback()
@@ -262,9 +254,9 @@ class Offer(Table):
                   reference=Reference(USER_TABLE, UserTable.LOGIN, ReferenceType.MANY_TO_ONE))
     DEVTEAM_ID = Field('devteam_id', INT, [NOT_NULL],
                        reference=Reference(DEVTEAM, DevTeam.DEVTEAM_ID, ReferenceType.MANY_TO_ONE))
-    SALARY = Field('salary', INT, [NOT_NULL], generate_callback=lambda: random.randint(85, 450) * 1000)
-    START_DATE = Field('start_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[0])
-    END_DATE = Field('end_date', DATE, [NOT_NULL], generate_callback=lambda: generate_date()[1])
+    SALARY = Field('salary', INT, [NOT_NULL], generate_callback=lambda: str(random.randint(85, 450) * 1000))
+    START_DATE = Field('start_date', DATE, [NOT_NULL], generate_callback=fake.date)
+    END_DATE = Field('end_date', DATE, [NOT_NULL], generate_callback=fake.date)
     STATUS = Field('status', BOOLEAN, generate_callback=generate_bool)
 
     # todo unique
@@ -277,7 +269,8 @@ class Offer(Table):
                           self.SALARY,
                           self.START_DATE,
                           self.END_DATE,
-                          self.STATUS])
+                          self.STATUS],
+                         constraints=[(UNIQUE, [self.DEVTEAM_ID, self.LOGIN])])
 
 
 OFFER = Offer()

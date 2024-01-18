@@ -38,7 +38,7 @@ def generate_all_data_sql(cnt: int, exclude_table: List[Table] = None) -> None:
     for table in tables:
         initialize_one_to_one_counter(table)
         initialize_uniques(table)
-        if table not in exclude_table:
+        if not exclude_table or table not in exclude_table:
             generate_data_sql(table, cnt)
 
 
@@ -57,8 +57,11 @@ def initialize_one_to_one_counter(table: Table) -> None:
 
 def initialize_uniques(table: Table) -> None:
     for field in table.fields:
-        if field.constraints and UNIQUE in field.constraints:
+        if field.constraints and (UNIQUE in field.constraints or PK in field.constraints):
             unique_dict[field] = set()
+    if table.constraints:
+        for const in table.constraints:
+            unique_table_dict[list_hash(const[1])] = set()
 
 
 def create_sql_dir_if_not_exists() -> None:
@@ -72,4 +75,4 @@ if __name__ == "__main__":
     write_all_create_sql()
 
     initialize_sequences()
-    generate_all_data_sql(10000, exclude_table=[])
+    generate_all_data_sql(100000)
