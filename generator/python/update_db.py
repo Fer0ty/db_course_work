@@ -38,9 +38,9 @@ if __name__ == "__main__":
         password="postgres",
         port=5432
     )
-    # with conn.cursor() as curs:
-    #     curs.execute(open(f"../sql/triggers.sql", "r").read())
-    # conn.commit()
+    with conn.cursor() as curs:
+        curs.execute(open(f"../sql/triggers.sql", "r").read())
+    conn.commit()
 
     for name in table_names:
         with conn.cursor() as curs:

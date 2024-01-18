@@ -12,7 +12,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION check_dates()
 RETURNS TRIGGER AS $$
 BEGIN
-      IF NEW.start_date >= NEW.end_date THEN
+      IF NEW.start_date > NEW.end_date THEN
     RAISE EXCEPTION 'End date should be after start date';
   END IF;
   RETURN NEW;
@@ -56,7 +56,7 @@ BEGIN
     -- number of interviews for user
     SELECT COUNT(*) INTO user_interview_count
     FROM techinterview
-    WHERE LOGIN = NEW.LOGIN AND DATA = NEW.DATA ;
+    WHERE LOGIN = NEW.LOGIN AND DATE = NEW.DATE ;
 
     -- Check that user does not have multiple interviews at the same time
     IF user_interview_count >= 1 THEN
