@@ -32,11 +32,11 @@ EXECUTE FUNCTION check_user_interview_limit();"""]
 
 if __name__ == "__main__":
     conn = psycopg2.connect(
-        host="localhost",
-        database="postgres",
-        user="postgres",
-        password="postgres",
-        port=5432
+        host="postgresql://pg",
+        database="studs",
+        user="s334645",
+        password="eNiIXg15sQmP6nDf",
+        port="5432"
     )
     with conn.cursor() as curs:
         curs.execute(open(f"../sql/triggers.sql", "r").read())
