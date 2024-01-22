@@ -3,7 +3,9 @@ import os.path
 from tables.tables import *
 from tables.base import Table
 
-tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE, CONTEST_TABLE, PROBLEM_SOLUTION_TABLE,DEVTEAM,DEVELOPER,OFFER,TECHINTERVIEW,PROBLEM_FEEDBACK,TEAMINTERVIEW]
+tables: List[Table] = [ACCOUNT_TABLE, PROBLEM_TABLE, ROLE_TABLE, USER_TABLE,
+                       CONTEST_TABLE, PROBLEM_SOLUTION_TABLE,DEVTEAM,DEVELOPER,
+                       OFFER,TECHINTERVIEW,PROBLEM_FEEDBACK,TEAMINTERVIEW]
 
 
 def write_create_sql(table: Table) -> None:
@@ -23,7 +25,7 @@ def generate_data_sql(table: Table, cnt: int) -> None:
     with open(f"generator/sql/{table.name}.data.sql", "w") as f:
         records_cnt = 0
         for i in range(cnt):
-            record = table.generate_record_with_constraints()
+            record = table.generate_record()
             if record is None:
                 continue
             cur_list.append(record)
@@ -73,6 +75,5 @@ def create_sql_dir_if_not_exists() -> None:
 if __name__ == "__main__":
     create_sql_dir_if_not_exists()
     write_all_create_sql()
-
     initialize_sequences()
-    generate_all_data_sql(10000)
+    generate_all_data_sql(100000)
